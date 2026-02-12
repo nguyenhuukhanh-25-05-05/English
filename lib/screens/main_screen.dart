@@ -49,6 +49,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
+      extendBody: true, // Allow body to extend behind the bar
       body: _buildScreen(),
       bottomNavigationBar: AppBottomBar(
         currentIndex: _currentIndex,

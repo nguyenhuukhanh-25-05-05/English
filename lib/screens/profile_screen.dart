@@ -23,63 +23,185 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Chỉnh sửa thông tin'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        title: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.edit_note_rounded,
+                color: Color(0xFF3B82F6),
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Chỉnh sửa thông tin',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              const SizedBox(height: 8),
+              _buildModernTextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Họ tên',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Họ tên',
+                hint: 'Nhập họ tên của bạn',
+                icon: Icons.person_outline_rounded,
+                maxLength: 100,
               ),
-              const SizedBox(height: 12),
-              TextField(
+              const SizedBox(height: 20),
+              _buildModernTextField(
                 controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Email',
+                hint: 'Địa chỉ email của bạn',
+                icon: Icons.alternate_email_rounded,
+                maxLength: 100,
+                keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 12),
-              TextField(
+              const SizedBox(height: 20),
+              _buildModernTextField(
                 controller: bioController,
+                label: 'Giới thiệu',
+                hint: 'Một chút về bản thân...',
+                icon: Icons.description_outlined,
+                maxLength: 200,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Giới thiệu',
-                  border: OutlineInputBorder(),
-                ),
               ),
             ],
           ),
         ),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              score.updateProfile(
-                name: nameController.text.trim(),
-                email: emailController.text.trim(),
-                bio: bioController.text.trim(),
-              );
-              Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3B82F6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Hủy',
+                    style: TextStyle(
+                      color: Color(0xFF6B7280),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: const Text('Lưu', style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    score.updateProfile(
+                      name: nameController.text.trim(),
+                      email: emailController.text.trim(),
+                      bio: bioController.text.trim(),
+                    );
+                    Navigator.pop(ctx);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Lưu lại',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    int? maxLength,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF4B5563),
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLength: maxLength,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF111827),
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(
+              color: Color(0xFF9CA3AF),
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: Icon(icon, color: const Color(0xFF3B82F6), size: 20),
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            counterText: '', // Hide the standard counter
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -205,20 +327,6 @@ class ProfileScreen extends StatelessWidget {
                 _SettingsGroup(
                   title: 'KHÁC',
                   items: [
-                    _SettingsTile(
-                      icon: Icons.help_outline_rounded,
-                      title: 'Hỗ trợ & Góp ý',
-                      color: const Color(0xFF6B7280),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Gửi email tới hỗ trợ: support@toeicmaster.vn',
-                            ),
-                          ),
-                        );
-                      },
-                    ),
                     _SettingsTile(
                       icon: Icons.delete_rounded,
                       title: 'Xóa dữ liệu',
@@ -392,32 +500,51 @@ class _StatsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 48),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
         children: [
-          _StatItem(
-            label: 'Cấp độ',
-            value: '${score.level}',
-            color: Colors.amber,
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  label: 'Cấp độ',
+                  value: '${score.level}',
+                  icon: Icons.workspace_premium_rounded,
+                  color: const Color(0xFFF59E0B),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _StatCard(
+                  label: 'Từ vựng',
+                  value: '${score.wordsLearned}',
+                  icon: Icons.auto_stories_rounded,
+                  color: const Color(0xFF3B82F6),
+                ),
+              ),
+            ],
           ),
-          const _VerticalDivider(),
-          _StatItem(
-            label: 'Từ vựng',
-            value: '${score.wordsLearned}',
-            color: Colors.blueAccent,
-          ),
-          const _VerticalDivider(),
-          _StatItem(
-            label: 'Thời gian',
-            value: '${(score.totalTimeSeconds / 60).floor()}ph',
-            color: Colors.deepPurpleAccent,
-          ),
-          const _VerticalDivider(),
-          _StatItem(
-            label: 'Ngày học',
-            value: '${score.streak}',
-            color: Colors.redAccent,
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  label: 'Thời gian',
+                  value: '${(score.totalTimeSeconds / 60).floor()} ph',
+                  icon: Icons.timer_rounded,
+                  color: const Color(0xFF8B5CF6),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _StatCard(
+                  label: 'Ngày học',
+                  value: '${score.streak}',
+                  icon: Icons.local_fire_department_rounded,
+                  color: const Color(0xFFEF4444),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -425,49 +552,67 @@ class _StatsSection extends StatelessWidget {
   }
 }
 
-class _StatItem extends StatelessWidget {
-  const _StatItem({
+class _StatCard extends StatelessWidget {
+  const _StatCard({
     required this.label,
     required this.value,
+    required this.icon,
     required this.color,
   });
+
   final String label;
   final String value;
+  final IconData icon;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFF111827),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF111827).withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF9CA3AF),
-            letterSpacing: 1,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF111827),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6B7280),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-}
-
-class _VerticalDivider extends StatelessWidget {
-  const _VerticalDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(height: 30, width: 1, color: const Color(0xFFE5E7EB));
   }
 }
 

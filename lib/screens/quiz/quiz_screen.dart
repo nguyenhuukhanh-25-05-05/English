@@ -161,6 +161,17 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
+  void _previousQuestion() {
+    if (_currentIndex > 0) {
+      setState(() {
+        _currentIndex--;
+        _selectedOption =
+            null; // We don't save specific answers per session yet
+        _answered = false;
+      });
+    }
+  }
+
   void _showResult() async {
     _timer?.cancel();
     await DatabaseService.instance.completeExamSession(widget.title);
@@ -271,34 +282,59 @@ class _QuizScreenState extends State<QuizScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getTypeColor(q.type).withValues(alpha: 0.1),
+                      color: _getTypeColor(q).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _getTypeLabel(q.type),
+                      _getTypeLabel(q),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: _getTypeColor(q.type),
+                        color: _getTypeColor(q),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Passage or Transcript for Part 3, 4, 6, 7
+                  if (q.passage != null || q.transcript != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                      ),
+                      child: Text(
+                        q.passage ?? q.transcript!,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          height: 1.6,
+                          color: Color(0xFF374151),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                   // Question text
                   Text(
                     q.question,
                     style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111827),
                       height: 1.4,
                     ),
                   ),
-                  // TTS button for listening
-                  if (q.speakText != null) ...[
+                  // TTS button for listening (Part 1, 2, 3, 4)
+                  if (q.audioUrl != null ||
+                      q.transcript != null ||
+                      q.word != null) ...[
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: () => TtsService.instance.speak(q.speakText!),
+                      onTap: () {
+                        final text = q.transcript ?? q.word ?? q.question;
+                        TtsService.instance.speak(text);
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -318,7 +354,7 @@ class _QuizScreenState extends State<QuizScreen> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              'Nghe phát âm',
+                              'Nghe âm thanh',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -454,29 +490,54 @@ class _QuizScreenState extends State<QuizScreen> {
                 color: Colors.white,
                 border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: _nextQuestion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF111827),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              child: Row(
+                children: [
+                  if (_currentIndex > 0) ...[
+                    SizedBox(
+                      height: 52,
+                      width: 52,
+                      child: ElevatedButton(
+                        onPressed: _previousQuestion,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF3F4F6),
+                          foregroundColor: const Color(0xFF111827),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Icon(Icons.arrow_back_rounded, size: 20),
+                      ),
                     ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    _currentIndex < widget.questions.length - 1
-                        ? 'Câu tiếp theo'
-                        : 'Xem kết quả',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: _nextQuestion,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF111827),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          _currentIndex < widget.questions.length - 1
+                              ? 'Câu tiếp theo'
+                              : 'Xem kết quả',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
         ],
@@ -544,7 +605,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            q.word,
+                            q.word ?? "Câu hỏi thông tin",
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
@@ -553,7 +614,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            q.phonetic,
+                            q.phonetic ?? "Part ${q.part.index + 1}",
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF6B7280),
@@ -564,7 +625,9 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => TtsService.instance.speak(q.word),
+                      onTap: () {
+                        if (q.word != null) TtsService.instance.speak(q.word!);
+                      },
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -581,7 +644,6 @@ class _QuizScreenState extends State<QuizScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // Meaning
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -591,20 +653,21 @@ class _QuizScreenState extends State<QuizScreen> {
                         text: TextSpan(
                           children: [
                             const TextSpan(
-                              text: 'Nghĩa: ',
+                              text: 'Lời giải: ',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF374151),
                               ),
                             ),
-                            TextSpan(
-                              text: q.meaning,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF374151),
+                            if (q.explanation != null || q.meaning != null)
+                              TextSpan(
+                                text: q.explanation ?? q.meaning!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF374151),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -612,37 +675,37 @@ class _QuizScreenState extends State<QuizScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Example
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('📝 ', style: TextStyle(fontSize: 14)),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: 'Ví dụ: ',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF374151),
+                if (q.example != null)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('📝 ', style: TextStyle(fontSize: 14)),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'Ví dụ: ',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF374151),
+                                ),
                               ),
-                            ),
-                            TextSpan(
-                              text: q.example,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF6B7280),
-                                fontStyle: FontStyle.italic,
+                              TextSpan(
+                                text: q.example!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF6B7280),
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 if (!isCorrect) ...[
                   const SizedBox(height: 12),
                   Row(
@@ -714,8 +777,12 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  Color _getTypeColor(QuestionType type) {
-    switch (type) {
+  Color _getTypeColor(QuizQuestion q) {
+    if (q.part != ToeicPart.part5) {
+      return const Color(0xFF6366F1); // Default to Listening/Reading
+    }
+
+    switch (q.type) {
       case QuestionType.enToVi:
         return const Color(0xFF3B82F6);
       case QuestionType.viToEn:
@@ -724,11 +791,15 @@ class _QuizScreenState extends State<QuizScreen> {
         return const Color(0xFFF59E0B);
       case QuestionType.listenChoose:
         return const Color(0xFF6366F1);
+      case QuestionType.multipleChoice:
+        return const Color(0xFF8B5CF6);
     }
   }
 
-  String _getTypeLabel(QuestionType type) {
-    switch (type) {
+  String _getTypeLabel(QuizQuestion q) {
+    if (q.part != ToeicPart.part5) return 'TOEIC PART ${q.part.index + 1}';
+
+    switch (q.type) {
       case QuestionType.enToVi:
         return 'DỊCH ANH → VIỆT';
       case QuestionType.viToEn:
@@ -737,6 +808,8 @@ class _QuizScreenState extends State<QuizScreen> {
         return 'ĐIỀN TỪ';
       case QuestionType.listenChoose:
         return 'NGHE CHỌN';
+      case QuestionType.multipleChoice:
+        return 'TRẮC NGHIỆM';
     }
   }
 }

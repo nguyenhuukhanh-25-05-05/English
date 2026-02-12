@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:english/services/ai_service.dart';
+import 'package:english/services/gemini_service.dart';
 import 'package:english/services/tts_service.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _isLoading = true;
     });
-    final reply = await AiService.instance.sendMessage(
+    final reply = await GeminiService.instance.sendMessage(
       'Xin chào! Hãy bắt đầu dạy tôi tiếng Anh.',
     );
     if (mounted) {
@@ -53,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
     _scrollToBottom();
 
-    final reply = await AiService.instance.sendMessage(text);
+    final reply = await GeminiService.instance.sendMessage(text);
     if (mounted) {
       setState(() {
         _messages.add(_ChatMessage(text: reply, isUser: false));
@@ -142,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Color(0xFF6B7280)),
             onPressed: () {
-              AiService.instance.resetChat();
+              GeminiService.instance.resetChat();
               setState(() {
                 _messages.clear();
               });

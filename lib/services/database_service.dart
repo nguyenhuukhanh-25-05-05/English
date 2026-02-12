@@ -73,7 +73,7 @@ class DatabaseService {
     // Create statistics table
     await db.execute('''
       CREATE TABLE statistics (
-        id INTEGER PRIMARY KEY DEFAULT 1,
+        id INTEGER PRIMARY KEY,
         dailyXP INTEGER DEFAULT 0,
         totalXP INTEGER DEFAULT 0,
         level INTEGER DEFAULT 1,
@@ -115,6 +115,7 @@ class DatabaseService {
 
     // Insert initial row for statistics
     await db.insert('statistics', {
+      'id': 1,
       'dailyXP': 0,
       'totalXP': 0,
       'level': 1,
@@ -197,6 +198,7 @@ class DatabaseService {
     await db.delete('exam_sessions');
     // Re-insert initial statistics
     await db.insert('statistics', {
+      'id': 1,
       'dailyXP': 0,
       'totalXP': 0,
       'level': 1,

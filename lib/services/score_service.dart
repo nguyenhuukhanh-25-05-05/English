@@ -108,22 +108,30 @@ class ScoreService extends ChangeNotifier {
     if (_lastActiveDate != today) {
       _resetDailyXP();
       if (_lastActiveDate.isNotEmpty) {
-        final lastDate = DateTime.tryParse(_lastActiveDate);
-        final now = DateTime.now().toUtc().add(const Duration(hours: 7));
-        if (lastDate != null) {
-          final diff = DateTime(now.year, now.month, now.day)
-              .difference(DateTime(lastDate.year, lastDate.month, lastDate.day))
-              .inDays;
-          if (diff == 1) {
-            _streak++;
-          } else if (diff > 1) {
-            _streak = 1;
-          }
+        final lastDateParts = _lastActiveDate.split('-');
+        final lastDate = DateTime(
+          int.parse(lastDateParts[0]),
+          int.parse(lastDateParts[1]),
+          int.parse(lastDateParts[2]),
+        );
+
+        final todayParts = today.split('-');
+        final todayDate = DateTime(
+          int.parse(todayParts[0]),
+          int.parse(todayParts[1]),
+          int.parse(todayParts[2]),
+        );
+
+        final diff = todayDate.difference(lastDate).inDays;
+
+        if (diff == 1) {
+          _streak++;
+        } else if (diff > 1) {
+          _streak = 1;
         }
       } else {
         _streak = 1;
       }
-      _dailyXP = 0;
       _lastActiveDate = today;
       changed = true;
     }

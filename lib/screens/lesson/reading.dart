@@ -121,7 +121,7 @@ class _ReadingDetailScreenState extends State<_ReadingDetailScreen>
   late TabController _tabController;
   bool _showVietnamese = true;
   int _playingIndex = -1;
-  Map<int, int?> _selectedAnswers = {};
+  final Map<int, int?> _selectedAnswers = {};
   bool _showResults = false;
 
   @override
@@ -506,7 +506,7 @@ class _ReadingDetailScreenState extends State<_ReadingDetailScreen>
         child: Row(
           children: [
             Text(
-              String.fromCharCode(65 + oIndex) + '.',
+              '${String.fromCharCode(65 + oIndex)}.',
               style: TextStyle(fontWeight: FontWeight.w900, color: textColor),
             ),
             const SizedBox(width: 12),

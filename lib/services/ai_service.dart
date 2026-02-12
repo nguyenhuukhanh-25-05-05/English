@@ -37,7 +37,7 @@ Rules:
     String processedMessage = message;
     if (message.length > _maxInputLength) {
       processedMessage =
-          message.substring(0, _maxInputLength) + "... (cắt bớt)";
+          "${message.substring(0, _maxInputLength)}... (cắt bớt)";
     }
 
     // Thêm tin nhắn người dùng vào lịch sử

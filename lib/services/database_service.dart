@@ -19,7 +19,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -27,16 +27,45 @@ class DatabaseService {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // This migration adds the 'level' column if it was missing in older versions.
-      // However, in the provided _createDB, 'level' is already present.
-      // This specific migration might be redundant if _createDB is always used for initial creation.
-      // But if an older version of the app existed without 'level' in _createDB, this would add it.
-      // For the given _createDB, 'level' is already there, so this specific ALTER TABLE might not be strictly necessary
-      // for *this* exact schema, but it's a good example of how to handle schema changes.
-      // Let's assume the user wants to add it as a migration step for a hypothetical older schema.
       await db.execute(
         'ALTER TABLE statistics ADD COLUMN level INTEGER DEFAULT 1',
       );
+    }
+    if (oldVersion < 3) {
+      // Add missing columns to statistics
+      try {
+        await db.execute(
+          'ALTER TABLE statistics ADD COLUMN email TEXT DEFAULT ""',
+        );
+      } catch (_) {}
+      try {
+        await db.execute(
+          'ALTER TABLE statistics ADD COLUMN bio TEXT DEFAULT ""',
+        );
+      } catch (_) {}
+      try {
+        await db.execute(
+          'ALTER TABLE statistics ADD COLUMN avatarPath TEXT DEFAULT ""',
+        );
+      } catch (_) {}
+      try {
+        await db.execute(
+          'ALTER TABLE statistics ADD COLUMN totalTimeSeconds INTEGER DEFAULT 0',
+        );
+      } catch (_) {}
+      try {
+        await db.execute(
+          'ALTER TABLE statistics ADD COLUMN wordsLearned INTEGER DEFAULT 0',
+        );
+      } catch (_) {}
+
+      // Create bookmarks table if missing
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS bookmarks (
+          word TEXT PRIMARY KEY,
+          timestamp TEXT
+        )
+      ''');
     }
   }
 
@@ -62,7 +91,7 @@ class DatabaseService {
       )
     ''');
 
-    // Create exam_sessions table for persistence
+    // Create exam_sessions table
     await db.execute('''
       CREATE TABLE exam_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,6 +101,14 @@ class DatabaseService {
         seconds_left INTEGER,
         answers_json TEXT,
         is_completed INTEGER DEFAULT 0,
+        timestamp TEXT
+      )
+    ''');
+
+    // Create bookmarks table
+    await db.execute('''
+      CREATE TABLE bookmarks (
+        word TEXT PRIMARY KEY,
         timestamp TEXT
       )
     ''');

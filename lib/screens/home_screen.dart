@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:english/services/score_service.dart';
 
@@ -38,6 +39,13 @@ class _HomeScreenState extends State<HomeScreen> {
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         title: const Text(
           'TRANG CHỦ',
           style: TextStyle(
@@ -47,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
             letterSpacing: 2.0,
           ),
         ),
-        backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: ListenableBuilder(
@@ -55,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, _) {
             final score = ScoreService.instance;
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

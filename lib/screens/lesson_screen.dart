@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:english/screens/lesson/vocabulary.dart';
 import 'package:english/screens/lesson/grammar.dart';
@@ -15,9 +16,15 @@ class LessonScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: Colors.transparent,
         centerTitle: true,
         automaticallyImplyLeading: false,
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         title: const Text(
           'BÀI HỌC',
           style: TextStyle(
@@ -30,7 +37,7 @@ class LessonScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

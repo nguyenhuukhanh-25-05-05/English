@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:english/services/score_service.dart';
 import 'package:english/screens/profile_screen/saved_vocab_screen.dart';
+import 'package:english/screens/profile/practice_history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -241,9 +243,15 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
         automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         title: const Text(
           'CÁ NHÂN',
           style: TextStyle(
@@ -259,6 +267,7 @@ class ProfileScreen extends StatelessWidget {
         builder: (context, _) {
           final score = ScoreService.instance;
           return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 150), // Thêm padding ở dưới
             child: Column(
               children: [
                 _ProfileHeader(score: score),
@@ -299,11 +308,10 @@ class ProfileScreen extends StatelessWidget {
                       title: 'Lịch sử ôn luyện',
                       color: const Color(0xFF6366F1),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Tính năng lịch sử chi tiết sắp ra mắt!',
-                            ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PracticeHistoryScreen(),
                           ),
                         );
                       },

@@ -177,6 +177,15 @@ class DatabaseService {
     );
   }
 
+  Future<List<Map<String, dynamic>>> getCompletedExams() async {
+    final db = await database;
+    return await db.query(
+      'exam_sessions',
+      where: 'is_completed = 1',
+      orderBy: 'timestamp DESC',
+    );
+  }
+
   Future<Map<String, dynamic>> getStatistics() async {
     final db = await database;
     final results = await db.query(
